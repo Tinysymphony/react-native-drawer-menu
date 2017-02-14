@@ -1,0 +1,35 @@
+{
+	"name": "react-native-drawer",
+	"version": "0.0.1",
+	"private": true,
+	"scripts": {
+		"start": "react-native start",
+		"ios": "react-native run-ios",
+		"android": "react-native run-android",
+		"test": "jest",
+		"coverage": "cat ./coverage/lcov.info | coveralls"
+	},
+	"author": {
+		"name": "wytiny",
+		"url": "http://wytiny.com"
+	},
+	"maintainers": [
+		{
+			"name": "wytiny",
+			"email": "zjutiny@gmail.com"
+		}
+	],
+	"dependencies": {
+		"react": "~15.4.0",
+		"react-native": "0.41.2"
+	},
+	"devDependencies": {
+		"babel-jest": "18.0.0",
+		"babel-preset-react-native": "1.9.1",
+		"jest": "18.1.0",
+		"react-test-renderer": "~15.4.0"
+	},
+	"jest": {
+		"preset": "react-native"
+	}
+}
