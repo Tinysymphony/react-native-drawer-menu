@@ -4,6 +4,8 @@ import {
   StyleSheet,
   Text,
   View,
+  TouchableHighlight,
+  TouchableWithoutFeedback,
   PanResponder,
   Dimensions
 } from 'react-native';
@@ -14,7 +16,8 @@ import Animation from './Animation';
 
 export default class Drawer extends Component {
   componentWillMount() {
-    this.MAX_DX = this.props.drawerWidth;
+    const {drawerWidth} = this.props;
+    this.MAX_DX = drawerWidth > 0.8 * width ? 0.8 * width : drawerWidth;
     this.styles = {
       drawer: {
         style: {
@@ -47,19 +50,28 @@ export default class Drawer extends Component {
       onPanResponderTerminate: this._handlePanResponderEnd.bind(this),
       onShouldBlockNativeResponder: (evt, gestureState) => true
     });
+    this._handleMainBoardPress = this._handleMainBoardPress.bind(this);
   }
   componentDidMount() {
-    this._updateNativeStyles();
+    this._updateNativeStyles(0);
   }
   _handlePanResponderGrant(evt, gestureState) {
 
   }
   _handlePanResponderMove (evt, gestureState) {
-    this._updateNativeStyles(gestureState.dx);
+    var {dx, x0} = gestureState;
+    if (!this._touchPositionCheck(gestureState)) return;
+    if (dx > 0 && dx <= this.MAX_DX) {
+      this._updateNativeStyles(gestureState.dx);
+    } else if(dx < 0 && dx >= -this.MAX_DX) {
+      this._updateNativeStyles(this.MAX_DX + dx);
+    }
+    // dx === 0 triggers tap event when drawer is opened.
   }
   _handlePanResponderEnd (evt, gestureState) {
     var left = this.styles.main.style.left;
-    if (left === this.props.drawerWidth) {
+    if (this.isOpen && gestureState.dx === 0) return this._handleMainBoardPress();
+    if (left === this.MAX_DX) {
       this.isOpen = true;
       return;
     }
@@ -73,14 +85,24 @@ export default class Drawer extends Component {
       this.closeDrawer();
     }
   }
+  _touchPositionCheck(gestureState) {
+    const {x0, dx} = gestureState;
+    if (x0 <= width * 0.2 && !this.isOpen && dx > 0) {
+      return true;
+    }
+    if ((x0 > (width - this.MAX_DX)) && this.isOpen && dx < 0) {
+      return true;
+    }
+    return false;
+  }
   closeDrawer() {
     this.inAnimation = true;
-    const {duration, drawerWidth} = this.props;
+    const {duration} = this.props;
     var left = this.styles.main.style.left;
     new Animation({
       start: left,
       end: 0,
-      duration: duration,
+      duration,
       onAnimationFrame: (left) => {
         this._updateNativeStyles(left);
       },
@@ -92,12 +114,12 @@ export default class Drawer extends Component {
   }
   openDrawer() {
     this.inAnimation = true;
-    const {duration, drawerWidth} = this.props;
+    const {duration} = this.props;
     var left = this.styles.main.style.left;
     new Animation({
       start: left,
-      end: drawerWidth,
-      duration: duration,
+      end: this.MAX_DX,
+      duration,
       onAnimationFrame: (left) => {
         this._updateNativeStyles(left);
       },
@@ -108,20 +130,26 @@ export default class Drawer extends Component {
     });
   }
   _updateNativeStyles (dx) {
-    dx = Number(dx);
-    if (dx >= 0 && dx < this.MAX_DX) {
-      this.styles.drawer.style.left = -this.MAX_DX + dx;
-      this.styles.drawer.style.right = width - dx;
-      this.styles.main.style.left = dx;
-      this.styles.main.style.right = -dx;
-    }
+    this.styles.drawer.style.left = -this.MAX_DX + dx;
+    this.styles.drawer.style.right = width - dx;
+    this.styles.main.style.left = dx;
+    this.styles.main.style.right = -dx;
     this._drawer && this._drawer.setNativeProps(this.styles.drawer);
     this._main && this._main.setNativeProps(this.styles.main);
   }
+  _handleMainBoardPress () {
+    if (this.inAnimation) return;
+    this.closeDrawer();
+  }
   render() {
+    // TODO mask to prevent touch event on main board
     return (
       <View style={styles.container}>
-        <View ref={(main) => {this._main = main;}} style={styles.main} {...this._pan.panHandlers}>
+        <View
+          ref={(main) => {this._main = main;}}
+          style={styles.main}
+          {...this._pan.panHandlers}
+        >
           {this.props.children}
         </View>
         <View ref={(drawer) => {this._drawer = drawer;}} style={styles.drawer}>
@@ -134,7 +162,7 @@ export default class Drawer extends Component {
 
 Drawer.defaultProps = {
   drawerWidth: 200,
-  duration: 300
+  duration: 160
 };
 
 Drawer.propTypes = {
@@ -150,21 +178,9 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   drawer: {
-    position: 'absolute',
-    backgroundColor: '#f90'
+    position: 'absolute'
   },
   main: {
-    position: 'absolute',
-    backgroundColor: '#2ba'
-  },
-  content: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  drawerContent: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center'
+    position: 'absolute'
   }
 });

@@ -1,11 +1,11 @@
 export default function Animation(option) {
   this.animate = this.animate.bind(this);
-  this.startTime = new Date();
   this.option = option;
-  this.animate();
+  this.startTime = new Date();
+  this.animate(this.startTime);
 }
 
-Animation.prototype.animate = function () {
+Animation.prototype.animate = function (now) {
   const {
     start,
     end,
@@ -13,13 +13,14 @@ Animation.prototype.animate = function () {
     onAnimationFrame,
     onAnimationEnd
   } = this.option;
-  var now = new Date();
   var currentDuration = now - this.startTime;
   if (currentDuration >= duration) {
     onAnimationFrame(end);
-    return onAnimationEnd();
+    onAnimationEnd();
+    return;
   }
   var value;
+  // TODO more animation function
   if (start > end) {
     value = start - (start - end) * currentDuration / duration;
   } else {
