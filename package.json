@@ -1,5 +1,5 @@
 {
-	"name": "react-native-drawer",
+	"name": "react-native-drawer-menu",
 	"version": "0.0.1",
 	"private": true,
 	"scripts": {
@@ -21,9 +21,9 @@
 		}
 	],
 	"bugs": {
-		"url": "https://github.com/Tinysymphony/react-native-drawer-xg/issues"
+		"url": "https://github.com/Tinysymphony/react-native-drawer-menu/issues"
 	},
-	"homepage": "https://github.com/Tinysymphony/react-native-drawer-xg#readme",
+	"homepage": "https://github.com/Tinysymphony/react-native-drawer-menu#readme",
 	"dependencies": {},
 	"devDependencies": {
 		"babel-jest": "18.0.0",
