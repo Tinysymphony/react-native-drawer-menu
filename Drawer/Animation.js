@@ -1,8 +1,11 @@
+/**
+ * Created by wangyi27 on 2017-02-14.
+ */
+
 export default function Animation(option) {
   this.animate = this.animate.bind(this);
+  this.start = this.start.bind(this);
   this.option = option;
-  this.startTime = new Date();
-  this.animate(this.startTime);
 }
 
 Animation.prototype.animate = function (now) {
@@ -19,7 +22,7 @@ Animation.prototype.animate = function (now) {
     onAnimationEnd();
     return;
   }
-  var value;
+  let value;
   // TODO more animation function
   if (start > end) {
     value = start - (start - end) * currentDuration / duration;
@@ -28,4 +31,9 @@ Animation.prototype.animate = function (now) {
   }
   onAnimationFrame(value);
   requestAnimationFrame(this.animate);
-}
+};
+
+Animation.prototype.start = function () {
+  this.startTime = new Date();
+  this.animate(this.startTime);
+};

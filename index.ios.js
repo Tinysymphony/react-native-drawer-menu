@@ -1,10 +1,8 @@
 /**
- * Sample React Native App
- * https://github.com/facebook/react-native
- * @flow
+ * Created by wangyi27 on 2017-02-14.
  */
 
-import React, { PropTypes, Component } from 'react';
+import React, {Component} from 'react';
 import {
   AppRegistry,
   StyleSheet,
@@ -20,8 +18,7 @@ const {width, height} = Dimensions.get('window');
 export default class drawer extends Component {
   render() {
     var drawerContent = (<View style={styles.drawerContent}>
-      <View style={styles.leftTop}>
-      </View>
+      <View style={styles.leftTop}/>
       <View style={styles.leftBottom}>
         <View><Text>Item1</Text></View>
         <View><Text>Item2</Text></View>
@@ -35,8 +32,8 @@ export default class drawer extends Component {
         drawerContent={drawerContent}
       >
         <View style={styles.content}>
-          <View style={styles.head}></View>
-          <Text>{width}</Text>
+          <View style={styles.head}/>
+          <Text onPress={()=>{console.log(2);}}>{width}</Text>
           <Text>{height}</Text>
         </View>
       </Drawer>
@@ -66,14 +63,13 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    alignItems: 'center',
     alignSelf: 'stretch',
     backgroundColor: '#e3b8cb'
   },
   drawerContent: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
+    alignItems: 'center'
   },
   leftTop: {
     flex: 1,

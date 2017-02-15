@@ -9,6 +9,7 @@
 		"test": "jest",
 		"coverage": "cat ./coverage/lcov.info | coveralls"
 	},
+	"main": "Drawer/index.js",
 	"author": {
 		"name": "wytiny",
 		"url": "http://wytiny.com"
@@ -19,17 +20,37 @@
 			"email": "zjutiny@gmail.com"
 		}
 	],
-	"dependencies": {
-		"react": "~15.4.0",
-		"react-native": "0.41.2"
+	"bugs": {
+		"url": "https://github.com/Tinysymphony/react-native-drawer-xg/issues"
 	},
+	"homepage": "https://github.com/Tinysymphony/react-native-drawer-xg#readme",
+	"dependencies": {},
 	"devDependencies": {
 		"babel-jest": "18.0.0",
 		"babel-preset-react-native": "1.9.1",
+		"coveralls": "^2.11.16",
+		"cz-conventional-changelog": "^1.2.0",
+		"enzyme": "^2.7.1",
+		"istanbul": "^0.4.5",
 		"jest": "18.1.0",
+		"react": "^15.4.2",
+		"react-addons-test-utils": "^15.4.2",
+		"react-dom": "^15.4.2",
+		"react-native": "^0.41.2",
 		"react-test-renderer": "~15.4.0"
 	},
 	"jest": {
-		"preset": "react-native"
-	}
+		"preset": "react-native",
+		"verbose": true,
+		"collectCoverage": true,
+		"moduleFileExtensions": [
+			"js"
+		]
+	},
+	"config": {
+		"commitizen": {
+			"path": "./node_modules/cz-conventional-changelog"
+		}
+	},
+	"license": "MIT"
 }
