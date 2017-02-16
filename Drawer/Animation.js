@@ -1,5 +1,5 @@
 /**
- * Created by wangyi27 on 2017-02-14.
+ * Created by TinySymphony on 2017-02-14.
  */
 
 export default function Animation(option) {

@@ -1,5 +1,5 @@
 /**
- * Created by wangyi27 on 2017-02-14.
+ * Created by TinySymphony on 2017-02-14.
  */
 
 import React, {PropTypes, Component} from 'react';
@@ -15,19 +15,59 @@ const {width} = Dimensions.get('window');
 import Animation from './Animation';
 
 /* eslint-disable curly, no-new, no-warning-comments */
+const positions = {
+  Left: 'left',
+  Right: 'right'
+};
+
+const types = {
+  Overlay: 'overlay',
+  Default: 'default',
+  Replace: 'replace'
+};
+
+const MAX = {
+  maskAlpha: 0.5
+};
 
 export default class Drawer extends Component {
+  static positions = positions
+  static types = types
+  static defaultProps = {
+    drawerWidth: 200,
+    duration: 160,
+    drawerPosition: positions.Left,
+    type: types.Default,
+    showMask: true,
+    maskAlpha: 0.4,
+    customStyles: {}
+  }
+  static propTypes = {
+    drawerContent: PropTypes.object,
+    width: PropTypes.number,
+    duration: PropTypes.number,
+    drawerPosition: PropTypes.oneOf(Object.values(positions)),
+    type: PropTypes.oneOf(Object.values(types)),
+    showMask: PropTypes.bool,
+    maskAlpha: PropTypes.number,
+    customStyles: PropTypes.object
+  }
   componentWillMount() {
-    const {drawerWidth} = this.props;
+    const {
+      drawerWidth,
+      drawerPosition,
+      maskAlpha
+    } = this.props;
+    this.isLeft = drawerPosition === positions.Left;
     this.MAX_DX = drawerWidth > 0.8 * width ? 0.8 * width : drawerWidth;
-    this.MAX_ALPHA = 0.3;
+    this.MAX_ALPHA = maskAlpha > MAX.maskAlpha ? MAX.maskAlpha : maskAlpha;
     this.styles = {
       drawer: {
         style: {
           top: 0,
           bottom: 0,
-          left: -this.MAX_DX,
-          right: width
+          left: this.isLeft ? -this.MAX_DX : width,
+          right: this.isLeft ? width : -this.MAX_DX
         }
       },
       main: {
@@ -75,7 +115,8 @@ export default class Drawer extends Component {
   }
   _onMoveShouldSetPanResponder (evt, gestureState) {
     if (this._touchPositionCheck(gestureState)) {
-      !this.state.showMask && this.setState({showMask: true});
+      this.props.showMask && !this.state.showMask && this.setState({showMask: true});
+      this.props.onDrawerStartOpen && this.props.onDrawerStartOpen();
       return true;
     }
     return false;
@@ -83,33 +124,42 @@ export default class Drawer extends Component {
   _handlePanResponderGrant(evt, gestureState) {
   }
   _handlePanResponderMove (evt, gestureState) {
-    var {dx} = gestureState;
-    if (dx > 0 && dx <= this.MAX_DX && !this.isOpen) {
-      this._updateNativeStyles(gestureState.dx);
-    } else if (dx < 0 && dx >= -this.MAX_DX && this.isOpen) {
-      this._updateNativeStyles(this.MAX_DX + dx);
+    let dx = gestureState.dx;
+    if (dx > 0 && dx <= this.MAX_DX) {
+      // swipe right
+      if (this.isOpen && !this.isLeft) this._updateNativeStyles(-this.MAX_DX + dx);
+      if (!this.isOpen && this.isLeft) this._updateNativeStyles(dx);
+    } else if (dx < 0 && dx >= -this.MAX_DX) {
+      // swipe left
+      if (this.isOpen && this.isLeft) this._updateNativeStyles(this.MAX_DX + dx);
+      if (!this.isOpen && !this.isLeft) this._updateNativeStyles(dx);
     }
     // dx === 0 triggers tap event when drawer is opened.
   }
   _handlePanResponderEnd (evt, gestureState) {
-    var left = this.styles.main.style.left;
+    let currentWidth = this._getCurrentDrawerWidth();
+    if (!this.isLeft) currentWidth *= -1;
     if (this.isOpen && gestureState.dx === 0) return this._handleMainBoardPress();
-    if (left === this.MAX_DX) return this._drawerDidOpen();
-    if (left === 0) return this._drawerDidClose();
-    if (left > this.MAX_DX / 2) {
+    if (currentWidth === this.MAX_DX) return this._drawerDidOpen();
+    if (currentWidth === 0) return this._drawerDidClose();
+    if (currentWidth > this.MAX_DX / 2) {
       this.openDrawer();
     } else {
       this.closeDrawer();
     }
   }
+  _getCurrentDrawerWidth () {
+    return this.isLeft ? this.styles.drawer.style.left + this.MAX_DX :
+      this.styles.drawer.style.left - width;
+  }
   _touchPositionCheck(gestureState) {
     const {moveX, dx, dy} = gestureState;
     let x0 = moveX; // in move set panresponder state, moveX is the original point's coordinates
-    if (Math.abs(dx) < Math.abs(dy)) return false;
-    if (x0 <= width * 0.2 && !this.isOpen && dx > 0) {
-      return true;
-    }
-    if ((x0 >= (width - this.MAX_DX)) && this.isOpen && dx < 0) {
+    let result = false;
+    if (Math.abs(dx) < Math.abs(dy)) return result;
+    if (this.isOpen && dx !== 0 ||
+      this.isLeft && x0 <= width * 0.2 && !this.isOpen && dx > 0 ||
+      !this.isLeft && x0 >= width * 0.8 && !this.isOpen && dx < 0) {
       return true;
     }
     return false;
@@ -118,7 +168,7 @@ export default class Drawer extends Component {
     if (this.inAnimation) return;
     this.inAnimation = true;
     const {duration} = this.props;
-    let left = this.styles.main.style.left;
+    let left = this._getCurrentDrawerWidth();
     new Animation({
       start: left,
       end: 0,
@@ -133,11 +183,11 @@ export default class Drawer extends Component {
     if (this.inAnimation) return;
     this.inAnimation = true;
     const {duration} = this.props;
-    let left = this.styles.main.style.left;
-    !this.state.showMask && this.setState({showMask: true});
+    let left = this._getCurrentDrawerWidth();
+    this.props.showMask && !this.state.showMask && this.setState({showMask: true});
     new Animation({
       start: left,
-      end: this.MAX_DX,
+      end: this.isLeft ? this.MAX_DX : -this.MAX_DX,
       duration,
       onAnimationFrame: (val) => {
         this._updateNativeStyles(val);
@@ -158,20 +208,24 @@ export default class Drawer extends Component {
     });
   }
   _updateNativeStyles (dx) {
-    this.styles.drawer.style.left = -this.MAX_DX + dx;
-    this.styles.drawer.style.right = width - dx;
-    this.styles.main.style.left = dx;
-    this.styles.main.style.right = -dx;
-    this.styles.mask.style.backgroundColor = `rgba(0, 0, 0, ${(dx / this.MAX_DX * this.MAX_ALPHA).toFixed(2)})`;
+    this.styles.drawer.style.left = this.isLeft ? -this.MAX_DX + dx : width + dx;
+    this.styles.drawer.style.right = this.isLeft ? width - dx : -this.MAX_DX - dx;
+    this.styles.mask.style.backgroundColor = `rgba(0, 0, 0,
+      ${(Math.abs(dx) / this.MAX_DX * this.MAX_ALPHA).toFixed(2)})`;
     this._drawer && this._drawer.setNativeProps(this.styles.drawer);
-    this._main && this._main.setNativeProps(this.styles.main);
     this._mask && this._mask.setNativeProps(this.styles.mask);
+    if (this.props.type === types.Default || dx === 0) {
+      this.styles.main.style.left = dx;
+      this.styles.main.style.right = -dx;
+      this._main && this._main.setNativeProps(this.styles.main);
+    }
   }
   _handleMainBoardPress () {
     if (this.inAnimation) return;
     this.closeDrawer();
   }
   render() {
+    const {customStyles} = this.props;
     let drawerContent;
     if (this.props.drawerContent) {
       drawerContent = React.cloneElement(this.props.drawerContent, {
@@ -182,47 +236,21 @@ export default class Drawer extends Component {
       <View style={styles.container}>
         <View
           ref={(main) => {this._main = main;}}
-          style={styles.absolute}
+          style={[customStyles.main, styles.absolute]}
           {...this._pan.panHandlers}
         >
           {this.props.children}
           {this.state.showMask && <View
             ref={(mask) => {this._mask = mask;}}
-            style={[styles.mask, styles.absolute]}/>}
+            style={[customStyles.mask, styles.mask, styles.absolute]}/>}
         </View>
-        <View ref={(drawer) => {this._drawer = drawer;}} style={styles.absolute}>
+        <View ref={(drawer) => {this._drawer = drawer;}} style={[customStyles.drawer, styles.absolute]}>
           {drawerContent}
         </View>
       </View>
     );
   }
 }
-
-Drawer.positions = {
-  Left: 'left',
-  Right: 'right'
-};
-
-Drawer.types = {
-  Overlay: 'overlay',
-  Default: 'default',
-  Replace: 'replace'
-};
-
-Drawer.defaultProps = {
-  drawerWidth: 200,
-  duration: 160,
-  drawerPosition: Drawer.positions.Left,
-  type: Drawer.types.Default
-};
-
-Drawer.propTypes = {
-  drawerContent: PropTypes.object,
-  width: PropTypes.number,
-  duration: PropTypes.number,
-  drawerPosition: PropTypes.oneOf(Object.values(Drawer.positions)),
-  type: PropTypes.oneOf(Object.values(Drawer.types))
-};
 
 const styles = StyleSheet.create({
   container: {

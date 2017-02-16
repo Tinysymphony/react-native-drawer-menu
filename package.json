@@ -1,13 +1,13 @@
 {
 	"name": "react-native-drawer-menu",
-	"version": "0.0.1",
-	"private": true,
+	"version": "0.0.2",
 	"scripts": {
 		"start": "react-native start",
 		"ios": "react-native run-ios",
 		"android": "react-native run-android",
 		"test": "jest",
-		"coverage": "cat ./coverage/lcov.info | coveralls"
+		"coverage": "cat ./coverage/lcov.info | coveralls",
+		"changelog": "conventional-changelog -p angular -i CHANGELOG.md -s"
 	},
 	"main": "Drawer/index.js",
 	"author": {

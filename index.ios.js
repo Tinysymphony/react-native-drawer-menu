@@ -30,11 +30,15 @@ export default class drawer extends Component {
         style={styles.container}
         drawerWidth={width}
         drawerContent={drawerContent}
+        type={Drawer.types.Overlay}
+        customStyles={{drawer: styles.drawer}}
+        drawerPosition={Drawer.positions.Right}
       >
         <View style={styles.content}>
           <View style={styles.head}/>
-          <Text onPress={()=>{console.log(2);}}>{width}</Text>
-          <Text>{height}</Text>
+          <Text onPress={()=>{console.log(2);}}>{width} {height}</Text>
+          <Text>{Object.values(Drawer.positions).join(' ')}</Text>
+          <Text>{Object.values(Drawer.types).join(' ')}</Text>
         </View>
       </Drawer>
     );
@@ -47,15 +51,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center'
   },
-  drawer: {
-    position: 'absolute'
-  },
   main: {
     position: 'absolute',
     backgroundColor: '#2ba'
   },
   head: {
     height: 60,
+    marginBottom: 200,
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf: 'stretch',
@@ -63,6 +65,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+    alignItems: 'center',
     alignSelf: 'stretch',
     backgroundColor: '#e3b8cb'
   },
@@ -84,6 +87,11 @@ const styles = StyleSheet.create({
     alignItems: 'stretch',
     alignSelf: 'stretch',
     backgroundColor: '#f0f0f0'
+  },
+  drawer: {
+    shadowColor: '#000',
+    shadowOpacity: 0.4,
+    shadowRadius: 10
   }
 });
 
