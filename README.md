@@ -93,3 +93,13 @@ render() {
 | responderNegotiate | function | null | Customize conditions to set pan responder, `evt` & `gestureState` will be passed as arguments. Default condition is left 20% area on screen in `left` Drawer, or right 20% area on screen in `right` Drawer. |
 
 
+### Instance methods
+
+Use ref to invoke instance methods.
+
+| Method | Description |
+| --- | --- |
+| openDrawer | OpenDrawer manually |
+| closeDrawer | CloseDrawer manually. The drawerContent has a ref of drawer instance, you can also trigger with it. |
+
+
