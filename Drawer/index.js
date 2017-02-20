@@ -40,7 +40,9 @@ export default class Drawer extends Component {
     type: types.Default,
     showMask: true,
     maskAlpha: 0.4,
-    customStyles: {}
+    customStyles: {},
+    startCapture: false,
+    moveCapture: false
   }
   static propTypes = {
     drawerContent: PropTypes.object,
@@ -50,7 +52,12 @@ export default class Drawer extends Component {
     type: PropTypes.oneOf(Object.values(types)),
     showMask: PropTypes.bool,
     maskAlpha: PropTypes.number,
-    customStyles: PropTypes.object
+    customStyles: PropTypes.object,
+    onDrawerClose: PropTypes.func,
+    onDrawerOpen: PropTypes.func,
+    startCapture: PropTypes.bool,
+    moveCapture: PropTypes.bool,
+    responderNegotiate: PropTypes.func
   }
   componentWillMount() {
     const {
@@ -88,9 +95,9 @@ export default class Drawer extends Component {
     this.isOpen = false;
     this._pan = PanResponder.create({
       onStartShouldSetPanResponder: this._onStartShouldSetPanResponder.bind(this),
-      onStartShouldSetPanResponderCapture: (evt, gestureState) => false,
+      onStartShouldSetPanResponderCapture: (evt, gestureState) => this.props.startCapture,
       onMoveShouldSetPanResponder: this._onMoveShouldSetPanResponder.bind(this),
-      onMoveShouldSetPanResponderCapture: (evt, gestureState) => false,
+      onMoveShouldSetPanResponderCapture: (evt, gestureState) => this.props.moveCapture,
       onPanResponderTerminationRequest: (evt, gestureState) => true,
       onPanResponderGrant: this._handlePanResponderGrant.bind(this),
       onPanResponderMove: this._handlePanResponderMove.bind(this),
@@ -114,9 +121,11 @@ export default class Drawer extends Component {
     return false;
   }
   _onMoveShouldSetPanResponder (evt, gestureState) {
+    // custom pan responder condition function
+    if (this.props.responderNegotiate && this.props.responderNegotiate(evt, gestureState) === false) return false;
     if (this._touchPositionCheck(gestureState)) {
       this.props.showMask && !this.state.showMask && this.setState({showMask: true});
-      this.props.onDrawerStartOpen && this.props.onDrawerStartOpen();
+      // this.props.onDrawerStartOpen && this.props.onDrawerStartOpen();
       return true;
     }
     return false;

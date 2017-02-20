@@ -2,6 +2,22 @@
 
 A drawer component for React Native Application (ios / android)
 
+Similar to drawer menu component of QQ mobile.
+
+### Examples
+
+#### iOS Platform
+
+<a href="#ios-left" id="ios-left"><img src="./GIF/ios-left-default.gif"  align="left" width="200"></a>
+
+<a href="#ios-right" id="ios-right"><img src="./GIF/ios-right-overlay.gif" width="200"/></a>
+
+#### Android Platform
+
+<a href="#android-left" id="android-left"><img src="./GIF/android-left-default.gif"  align="left" width="200"></a>
+
+<a href="#android-right" id="android-right"><img src="./GIF/android-right-overlay.gif"  width="200"></a>
+
 ### Usage
 
 **install from npm**
@@ -70,5 +86,10 @@ render() {
 | maskAlpha | Number | 0.4 | Maximum value is 0.5, the opactiy value of the mask over the main board when drawer is open. Mask can be disabled with `showMask` property. |
 | showMask | Bool | true | Whether show the mask when drawer is open. |
 | customStyles | Object | {} | Customize drawer styles. You can customize main / mask / drawer. |
+| onDrawerOpen | function | null | Triggers when drawer is totally opened. |
+| onDrawerClose | function | null | Triggers when drawer is totally closed. |
+| startCapture | Bool | false | Whether to capture touch events while clicking on screen. |
+| moveCapture | Bool | false | Whether to capture touch events while swiping over the screen. |
+| responderNegotiate | function | null | Customize conditions to set pan responder, `evt` & `gestureState` will be passed as arguments. Default condition is left 20% area on screen in `left` Drawer, or right 20% area on screen in `right` Drawer. |
 
 
