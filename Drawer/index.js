@@ -57,6 +57,7 @@ export default class Drawer extends Component {
     onDrawerOpen: PropTypes.func,
     startCapture: PropTypes.bool,
     moveCapture: PropTypes.bool,
+    easingFunc: PropTypes.func,
     responderNegotiate: PropTypes.func
   }
   componentWillMount() {
@@ -176,12 +177,16 @@ export default class Drawer extends Component {
   closeDrawer() {
     if (this.inAnimation) return;
     this.inAnimation = true;
-    const {duration} = this.props;
+    const {
+      duration,
+      easingFunc = t => t
+    } = this.props;
     let left = this._getCurrentDrawerWidth();
     new Animation({
       start: left,
       end: 0,
       duration,
+      easingFunc,
       onAnimationFrame: (val) => {
         this._updateNativeStyles(val);
       },
@@ -191,13 +196,17 @@ export default class Drawer extends Component {
   openDrawer() {
     if (this.inAnimation) return;
     this.inAnimation = true;
-    const {duration} = this.props;
+    const {
+      duration,
+      easingFunc = t => t
+    } = this.props;
     let left = this._getCurrentDrawerWidth();
     this.props.showMask && !this.state.showMask && this.setState({showMask: true});
     new Animation({
       start: left,
       end: this.isLeft ? this.MAX_DX : -this.MAX_DX,
       duration,
+      easingFunc,
       onAnimationFrame: (val) => {
         this._updateNativeStyles(val);
       },

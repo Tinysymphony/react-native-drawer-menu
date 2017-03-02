@@ -14,7 +14,8 @@ Animation.prototype.animate = function (now) {
     end,
     duration,
     onAnimationFrame,
-    onAnimationEnd
+    onAnimationEnd,
+    easingFunc = t => t
   } = this.option;
   var currentDuration = now - this.startTime;
   if (currentDuration >= duration) {
@@ -23,11 +24,10 @@ Animation.prototype.animate = function (now) {
     return;
   }
   let value;
-  // TODO more animation function
   if (start > end) {
-    value = start - (start - end) * currentDuration / duration;
+    value = start - (start - end) * easingFunc(currentDuration / duration);
   } else {
-    value = (end - start) * currentDuration / duration + start;
+    value = (end - start) * easingFunc(currentDuration / duration) + start;
   }
   onAnimationFrame(value);
   requestAnimationFrame(this.animate);

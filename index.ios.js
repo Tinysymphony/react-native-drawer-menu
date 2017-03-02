@@ -8,7 +8,8 @@ import {
   StyleSheet,
   Text,
   View,
-  Dimensions
+  Dimensions,
+  Easing
 } from 'react-native';
 
 import Drawer from './Drawer';
@@ -33,6 +34,7 @@ export default class drawer extends Component {
         type={Drawer.types.Overlay}
         customStyles={{drawer: styles.drawer}}
         drawerPosition={Drawer.positions.Right}
+        easingFunc={Easing.ease}
       >
         <View style={styles.content}>
           <View style={styles.head}/>

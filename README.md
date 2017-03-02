@@ -30,7 +30,7 @@ npm install --save react-native-drawer-menu
 
 ``` js
 import Drawer from 'react-native-drawer-menu';
-
+import {Easing} from 'react-native'; // Customize easing function (Optional)
 ```
 
 ```js
@@ -63,6 +63,7 @@ render() {
       drawerPosition={Drawer.positions.Right}
       onDrawerOpen={() => {console.log('Drawer is opened');}}
       onDrawerClose={() => {console.log('Drawer is closed')}}
+      easingFunc={Easing.ease}
     >
       <View style={styles.content}>
         <Text>{Object.values(Drawer.positions).join(' ')}</Text>
@@ -90,6 +91,7 @@ render() {
 | onDrawerClose | function | null | Triggers when drawer is totally closed. |
 | startCapture | Bool | false | Whether to capture touch events while clicking on screen. |
 | moveCapture | Bool | false | Whether to capture touch events while swiping over the screen. |
+| easingFunc | function | null | Easing function of drawer animation, default is `Easing.linear`. You can pass function like `Easing.ease`/`Easing.bezier(x1, y1, x2, y2)`/`Easing.sin`/`Easing.elastic(times)`/`Easing.bounce` etc.  |
 | responderNegotiate | function | null | Customize conditions to set pan responder, `evt` & `gestureState` will be passed as arguments. Default condition is left 20% area on screen in `left` Drawer, or right 20% area on screen in `right` Drawer. |
 
 
@@ -101,5 +103,3 @@ Use ref to invoke instance methods.
 | --- | --- |
 | openDrawer | OpenDrawer manually |
 | closeDrawer | CloseDrawer manually. The drawerContent has a ref of drawer instance, you can also trigger with it. |
-
-
