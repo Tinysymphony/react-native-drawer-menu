@@ -17,7 +17,8 @@ import Animation from './Animation';
 /* eslint-disable curly, no-new, no-warning-comments */
 const positions = {
   Left: 'left',
-  Right: 'right'
+  Right: 'right',
+  Both: 'both'
 };
 
 const types = {
@@ -54,7 +55,11 @@ export default class Drawer extends Component {
     maskAlpha: PropTypes.number,
     customStyles: PropTypes.object,
     onDrawerClose: PropTypes.func,
+    onLeftDrawerClose: PropTypes.func,
+    onRightDrawerClose: PropTypes.func,
     onDrawerOpen: PropTypes.func,
+    onLeftDrawerOpen: PropTypes.func,
+    onRightDrawerOpen: PropTypes.func,
     startCapture: PropTypes.bool,
     moveCapture: PropTypes.bool,
     easingFunc: PropTypes.func,
@@ -66,16 +71,25 @@ export default class Drawer extends Component {
       drawerPosition,
       maskAlpha
     } = this.props;
-    this.isLeft = drawerPosition === positions.Left;
+    this.isLeft = drawerPosition === positions.Both || drawerPosition === positions.Left;
+    this.isRight = drawerPosition === positions.Both || drawerPosition === positions.Right;
     this.MAX_DX = drawerWidth > 0.8 * width ? 0.8 * width : drawerWidth;
     this.MAX_ALPHA = maskAlpha > MAX.maskAlpha ? MAX.maskAlpha : maskAlpha;
     this.styles = {
-      drawer: {
+      leftDrawer: {
         style: {
           top: 0,
           bottom: 0,
-          left: this.isLeft ? -this.MAX_DX : width,
-          right: this.isLeft ? width : -this.MAX_DX
+          left: -this.MAX_DX,
+          right: width
+        }
+      },
+      rightDrawer: {
+        style: {
+          top: 0,
+          bottom: 0,
+          left: width,
+          right: -this.MAX_DX
         }
       },
       main: {
@@ -112,6 +126,7 @@ export default class Drawer extends Component {
     this._handleMainBoardPress = this._handleMainBoardPress.bind(this);
     this._drawerDidClose = this._drawerDidClose.bind(this);
     this._drawerDidOpen = this._drawerDidOpen.bind(this);
+    this._bindDrawerRef = this._bindDrawerRef.bind(this);
   }
   componentDidMount() {
     this._updateNativeStyles(0);
@@ -137,12 +152,12 @@ export default class Drawer extends Component {
     let dx = gestureState.dx;
     if (dx > 0 && dx <= this.MAX_DX) {
       // swipe right
-      if (this.isOpen && !this.isLeft) this._updateNativeStyles(-this.MAX_DX + dx);
-      if (!this.isOpen && this.isLeft) this._updateNativeStyles(dx);
+      if (this.isRightOpen && this.isRight) this._updateNativeStyles(-this.MAX_DX + dx);
+      if (!this.isLeftOpen && this.isLeft) this._updateNativeStyles(dx);
     } else if (dx < 0 && dx >= -this.MAX_DX) {
       // swipe left
-      if (this.isOpen && this.isLeft) this._updateNativeStyles(this.MAX_DX + dx);
-      if (!this.isOpen && !this.isLeft) this._updateNativeStyles(dx);
+      if (this.isLeftOpen && this.isLeft) this._updateNativeStyles(this.MAX_DX + dx);
+      if (!this.isRightOpen && this.isRight) this._updateNativeStyles(dx);
     }
     // dx === 0 triggers tap event when drawer is opened.
   }
@@ -166,10 +181,11 @@ export default class Drawer extends Component {
     const {moveX, dx, dy} = gestureState;
     let x0 = moveX; // in move set panresponder state, moveX is the original point's coordinates
     let result = false;
+    let isOpen = this.isLeftOpen || this.isRightOpen;
     if (Math.abs(dx) < Math.abs(dy)) return result;
-    if (this.isOpen && dx !== 0 ||
-      this.isLeft && x0 <= width * 0.2 && !this.isOpen && dx > 0 ||
-      !this.isLeft && x0 >= width * 0.8 && !this.isOpen && dx < 0) {
+    if (isOpen && dx !== 0 ||
+      this.isLeft && x0 <= width * 0.2 && !isOpen && dx > 0 ||
+      this.isRight && x0 >= width * 0.8 && !isOpen && dx < 0) {
       return true;
     }
     return false;
@@ -204,7 +220,7 @@ export default class Drawer extends Component {
     this.props.showMask && !this.state.showMask && this.setState({showMask: true});
     new Animation({
       start: left,
-      end: this.isLeft ? this.MAX_DX : -this.MAX_DX,
+      end: this.isLeft || this.isBoth ? this.MAX_DX : -this.MAX_DX,
       duration,
       easingFunc,
       onAnimationFrame: (val) => {
@@ -213,24 +229,39 @@ export default class Drawer extends Component {
       onAnimationEnd: this._drawerDidOpen
     }).start();
   }
-  _drawerDidOpen () {
+  _drawerDidOpen (isLeft) {
     this.inAnimation = false;
-    this.isOpen = true;
+    if (isLeft) {
+      this.isLeftOpen = true;
+      this.props.onLeftDrawerOpen && this.props.onLeftDrawerOpen();
+    } else {
+      this.isRightOpen = true;
+      this.props.onRightDrawerOpen && this.props.onRightDrawerOpen();
+    }
     this.props.onDrawerOpen && this.props.onDrawerOpen();
   }
-  _drawerDidClose () {
+  _drawerDidClose (isLeft) {
     this.inAnimation = false;
-    this.isOpen = false;
     this.state.showMask && this.setState({showMask: false}, () => {
+      if (isLeft) {
+        this.isLeftOpen = false;
+        this.props.onLeftDrawerClose && this.props.onLeftDrawerClose();
+      } else {
+        this.isRightOpen = false;
+        this.props.onRightDrawerClose && this.props.onRightDrawerClose();
+      }
       this.props.onDrawerClose && this.props.onDrawerClose();
     });
   }
   _updateNativeStyles (dx) {
-    this.styles.drawer.style.left = this.isLeft ? -this.MAX_DX + dx : width + dx;
-    this.styles.drawer.style.right = this.isLeft ? width - dx : -this.MAX_DX - dx;
+    this.styles.leftDrawer.style.left = -this.MAX_DX + dx;
+    this.styles.leftDrawer.style.right = width - dx;
+    this.styles.rightDrawer.style.left = width + dx;
+    this.styles.rightDrawer.style.right = -this.MAX_DX - dx;
     this.styles.mask.style.backgroundColor = `rgba(0, 0, 0,
       ${(Math.abs(dx) / this.MAX_DX * this.MAX_ALPHA).toFixed(2)})`;
-    this._drawer && this._drawer.setNativeProps(this.styles.drawer);
+    this._leftDrawer && this._leftDrawerdrawer.setNativeProps(this.styles.leftDrawer);
+    this._rightDrawer && this._rightDrawer.setNativeProps(this.styles.rightDrawer);
     this._mask && this._mask.setNativeProps(this.styles.mask);
     if (this.props.type === types.Default || dx === 0) {
       this.styles.main.style.left = dx;
@@ -242,14 +273,16 @@ export default class Drawer extends Component {
     if (this.inAnimation) return;
     this.closeDrawer();
   }
+  _bindDrawerRef(component) {
+    return React.cloneElement(component, {
+      drawer: this
+    });
+  }
   render() {
     const {customStyles} = this.props;
-    let drawerContent;
-    if (this.props.drawerContent) {
-      drawerContent = React.cloneElement(this.props.drawerContent, {
-        drawer: this
-      });
-    }
+    let drawerContent = this.props.drawerContent ? this._bindDrawerRef(this.props.drawerContent) : null;
+    let leftDrawerContent = this.props.leftDrawerContent ? this._bindDrawerRef(this.props.leftDrawerContent) : null;
+    let rightDrawerContent = this.props.rightDrawerContent ? this._bindDrawerRef(this.props.rightDrawerContent) : null;
     return (
       <View style={styles.container}>
         <View
@@ -262,9 +295,20 @@ export default class Drawer extends Component {
             ref={(mask) => {this._mask = mask;}}
             style={[customStyles.mask, styles.mask, styles.absolute]}/>}
         </View>
-        <View ref={(drawer) => {this._drawer = drawer;}} style={[customStyles.drawer, styles.absolute]}>
-          {drawerContent}
-        </View>
+        {this.isLeft &&
+          <View
+            ref={(drawer) => {this._leftDrawer = drawer;}}
+            style={[this.isLeft ? customStyles.drawer : {}, customStyles.leftDrawer, styles.absolute]}>
+            {leftDrawerContent ? leftDrawerContent : drawerContent}
+          </View>
+        }
+        {this.isRight &&
+          <View
+            ref={(drawer) => {this._rightDrawer = drawer;}}
+            style={[this.isRight ? customStyles.drawer : {}, customStyles.rightDrawer, styles.absolute]}>
+            {rightDrawerContent ? rightDrawerContent : drawerContent}
+          </View>
+        }
       </View>
     );
   }

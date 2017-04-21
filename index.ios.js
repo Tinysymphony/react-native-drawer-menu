@@ -33,7 +33,7 @@ export default class drawer extends Component {
         drawerContent={drawerContent}
         type={Drawer.types.Overlay}
         customStyles={{drawer: styles.drawer}}
-        drawerPosition={Drawer.positions.Right}
+        drawerPosition={Drawer.positions.Both}
         easingFunc={Easing.ease}
       >
         <View style={styles.content}>
