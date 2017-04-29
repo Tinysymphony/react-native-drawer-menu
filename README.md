@@ -1,4 +1,4 @@
-## react-native-drawer-menu [![Build Status](https://travis-ci.org/Tinysymphony/react-native-drawer-menu.svg?branch=master)](https://travis-ci.org/Tinysymphony/react-native-drawer-menu)
+## react-native-drawer-menu [![Build Status](https://travis-ci.org/Tinysymphony/react-native-drawer-menu.svg?branch=master)](https://travis-ci.org/Tinysymphony/react-native-drawer-menu) [![Coverage Status](https://coveralls.io/repos/github/Tinysymphony/react-native-drawer-menu/badge.svg?branch=master)](https://coveralls.io/github/Tinysymphony/react-native-drawer-menu?branch=master)
 
 A drawer component for React Native Application (ios / android)
 
@@ -19,6 +19,8 @@ Similar to drawer menu component of QQ mobile.
 <a href="#android-right" id="android-right"><img src="./GIF/android-right-overlay.gif"  width="200"></a>
 
 ### Usage
+
+> **SUGGESTION** In iOS, the drawer menu component should only be used in the top level route, because the action that swipes from left side of the screen to right is designed to pop route from navigate stack. You are supposed to avoid the conflict of the UI interactions. At least, don't use the `Left` drawer menu to wrap sub routes, use `Right` drawer menu if it's needed.
 
 **install from npm**
 
@@ -81,14 +83,21 @@ render() {
 | Property | Type | Default | Description |
 | --- | --- | --- | --- |
 | type | String | ‘default' | Type of the drawer. `default` / `overlay` You can also use static value `Drawer.type.Default` / `Drawer.type.Overlay`. |
-| drawerPosition | String | ‘left' | Determine where does the drawer come out. `left` or `right` You can also use static value `Drawer.position.Left` / `Drawer.position.Right`. |
+| drawerPosition | String | ‘left' | Determine where does the drawer come out. `left` / `right` / `both` You can also use static value `Drawer.position.Left` / `Drawer.position.Right` / `Drawer.position.Both`. |
 | drawerWidth | Number | 200 | The width of drawer, it’s disabled when use `replace` type. |
+| drawerContent | React Component | null | The content of the drawer menu, default is left content. |
+| leftDrawerContent | React Component | null | The content of the left drawer menu. |
+| rightDrawerContent | React Component | null | The content of the right drawer menu. |
 | duration | Number | 160 | The duration of animation to open or close drawer. |
 | maskAlpha | Number | 0.4 | Maximum value is 0.5, the opactiy value of the mask over the main board when drawer is open. Mask can be disabled with `showMask` property. |
 | showMask | Bool | true | Whether show the mask when drawer is open. |
-| customStyles | Object | {} | Customize drawer styles. You can customize main / mask / drawer. |
+| customStyles | Object | {} | Customize drawer styles. You can customize `main` / `mask` / `drawer` / `leftDrawer` / `rightDrawer`. |
 | onDrawerOpen | function | null | Triggers when drawer is totally opened. |
+| onLeftDrawerOpen | function | null | Triggers when the left drawer is totally opened. |
+| onRightDrawerOpen | function | null | Triggers when the right drawer is totally opened. |
 | onDrawerClose | function | null | Triggers when drawer is totally closed. |
+| onLeftDrawerClose | function | null | Triggers when the left drawer is totally closed. |
+| onRightDrawerClose | function | null | Triggers when the right drawer is totally closed. |
 | startCapture | Bool | false | Whether to capture touch events while clicking on screen. |
 | moveCapture | Bool | false | Whether to capture touch events while swiping over the screen. |
 | easingFunc | function | null | Easing function of drawer animation, default is `Easing.linear`. You can pass function like `Easing.ease`/`Easing.bezier(x1, y1, x2, y2)`/`Easing.sin`/`Easing.elastic(times)`/`Easing.bounce` etc.  |
@@ -101,5 +110,9 @@ Use ref to invoke instance methods.
 
 | Method | Description |
 | --- | --- |
-| openDrawer | OpenDrawer manually |
-| closeDrawer | CloseDrawer manually. The drawerContent has a ref of drawer instance, you can also trigger with it. |
+| openDrawer | Open drawer manually |
+| openLeftDrawer | Open left drawer manually |
+| openRightDrawer | Open right drawer manually |
+| closeDrawer | Close drawer manually. The drawerContent has a ref of drawer instance, you can also trigger with it. |
+| closeLeftDrawer | Close left drawer manually |
+| closeRightDrawer | Close right drawer manually |
