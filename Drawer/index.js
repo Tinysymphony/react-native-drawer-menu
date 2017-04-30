@@ -35,6 +35,7 @@ export default class Drawer extends Component {
   static positions = positions
   static types = types
   static defaultProps = {
+    disabled: false,
     drawerWidth: 200,
     duration: 160,
     drawerPosition: positions.Left,
@@ -46,6 +47,7 @@ export default class Drawer extends Component {
     moveCapture: false
   }
   static propTypes = {
+    disabled: PropTypes.bool,
     drawerContent: PropTypes.object,
     width: PropTypes.number,
     duration: PropTypes.number,
@@ -113,9 +115,9 @@ export default class Drawer extends Component {
     this.isRightActive = false;
     this._pan = PanResponder.create({
       onStartShouldSetPanResponder: this._onStartShouldSetPanResponder.bind(this),
-      onStartShouldSetPanResponderCapture: (evt, gestureState) => this.props.startCapture,
+      onStartShouldSetPanResponderCapture: this._onStartShouldCapture.bind(this),
       onMoveShouldSetPanResponder: this._onMoveShouldSetPanResponder.bind(this),
-      onMoveShouldSetPanResponderCapture: (evt, gestureState) => this.props.moveCapture,
+      onMoveShouldSetPanResponderCapture: this._onMoveShouldCapture.bind(this),
       onPanResponderTerminationRequest: this._handleTerminationRequest.bind(this),
       onPanResponderGrant: this._handlePanResponderGrant.bind(this),
       onPanResponderMove: this._handlePanResponderMove.bind(this),
@@ -141,6 +143,12 @@ export default class Drawer extends Component {
   componentDidMount () {
     this._updateNativeStyles(0);
   }
+  _onStartShouldCapture (evt, gestureState) {
+    return this.props.startCapture;
+  }
+  _onMoveShouldCapture (evt, gestureState) {
+    return this.props.moveCapture;
+  }
   _shouldBlockNativeResponder (evt, gestureState) {
     return true;
   }
@@ -150,12 +158,15 @@ export default class Drawer extends Component {
   _onStartShouldSetPanResponder (evt, gestureState) {
     // set responder for tapping when the drawer is open
     let isOpen = this.isLeftOpen || this.isRightOpen;
-    if (isOpen && !this.inAnimation) return true;
+    if (isOpen && !this.inAnimation && !this.props.disabled) return true;
     return false;
   }
   _onMoveShouldSetPanResponder (evt, gestureState) {
     // custom pan responder condition function
-    if (this.props.responderNegotiate && this.props.responderNegotiate(evt, gestureState) === false) return false;
+    if (
+      this.props.disabled ||
+      (this.props.responderNegotiate && this.props.responderNegotiate(evt, gestureState) === false)
+    ) return false;
     if (this._touchPositionCheck(gestureState)) {
       this.props.showMask && !this.state.showMask && this.setState({showMask: true});
       // this.props.onDrawerStartOpen && this.props.onDrawerStartOpen();
@@ -233,15 +244,15 @@ export default class Drawer extends Component {
     }).start();
   }
   closeLeftDrawer () {
-    if (!this.isLeft || !this.isLeftOpen) return;
+    if (!this.isLeft || !this.isLeftOpen || this.props.disabled) return;
     this.closeDrawer();
   }
   closeRightDrawer () {
-    if (!this.isRight || !this.isRightOpen) return;
+    if (!this.isRight || !this.isRightOpen || this.props.disabled) return;
     this.closeDrawer();
   }
   openDrawer() {
-    if (this.inAnimation) return;
+    if (this.inAnimation || this.props.disabled) return;
     this.inAnimation = true;
     const {
       duration,
@@ -274,13 +285,13 @@ export default class Drawer extends Component {
   }
   openLeftDrawer () {
     let isOpen = this.isLeftOpen || this.isRightOpen;
-    if (!this.isLeft || isOpen) return;
+    if (!this.isLeft || isOpen || this.props.disabled) return;
     this.isLeftActive = true;
     this.openDrawer();
   }
   openRightDrawer () {
     let isOpen = this.isLeftOpen || this.isRightOpen;
-    if (!this.isRight || isOpen) return;
+    if (!this.isRight || isOpen || this.props.disabled) return;
     this.isRightActive = true;
     this.openDrawer();
   }

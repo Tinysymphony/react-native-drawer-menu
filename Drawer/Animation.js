@@ -15,9 +15,10 @@ Animation.prototype.animate = function (now) {
     duration,
     onAnimationFrame,
     onAnimationEnd,
-    easingFunc = t => t
+    easingFunc = this.defaultEasing
   } = this.option;
-  var currentDuration = now - this.startTime;
+
+  let currentDuration = now - this.startTime;
   if (currentDuration >= duration) {
     onAnimationFrame(end);
     onAnimationEnd();
@@ -33,7 +34,9 @@ Animation.prototype.animate = function (now) {
   requestAnimationFrame(this.animate);
 };
 
-Animation.prototype.start = function () {
+Animation.prototype.start = function (time) {
   this.startTime = new Date();
-  this.animate(this.startTime);
+  this.animate(time || this.startTime);
 };
+
+Animation.prototype.defaultEasing = t => t;

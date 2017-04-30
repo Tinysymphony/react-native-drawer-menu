@@ -12,13 +12,24 @@ import {
   Easing,
   TouchableHighlight
 } from 'react-native';
-
 import Drawer from './Drawer';
 
 const {width, height} = Dimensions.get('window');
 
-export default class drawer extends Component {
-  render() {
+class drawer extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      disabled: false
+    };
+    this.toggle = this.toggle.bind(this);
+  }
+  toggle () {
+    this.setState({
+      disabled: !this.state.disabled
+    });
+  }
+  render () {
     var leftDrawerContent = (<View style={styles.drawerContent}>
       <View style={styles.leftTop}/>
       <View style={styles.leftBottom}>
@@ -47,6 +58,7 @@ export default class drawer extends Component {
           leftDrawer: styles.leftDrawer,
           rightDrawer: styles.rightDrawer
         }}
+        disabled={this.state.disabled}
         drawerPosition={Drawer.positions.Both}
         easingFunc={Easing.ease}
       >
@@ -66,6 +78,12 @@ export default class drawer extends Component {
             underlayColor="#118d95"
             onPress={() => {this.drawer && this.drawer.openRightDrawer();}}>
             <Text style={styles.btnText}>Open Right Drawer</Text>
+          </TouchableHighlight>
+          <TouchableHighlight
+            style={styles.btn2}
+            underlayColor="#118d95"
+            onPress={this.toggle}>
+            <Text style={styles.btnText}>Enable / Disable Drawer</Text>
           </TouchableHighlight>
         </View>
       </Drawer>
