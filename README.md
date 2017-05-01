@@ -83,7 +83,7 @@ render() {
 | Property | Type | Default | Description |
 | --- | --- | --- | --- |
 | disabled | Bool | false | Whether the drawer menu is disabled or not. |
-| type | String | ‘default' | Type of the drawer. `default` / `overlay` You can also use static value `Drawer.type.Default` / `Drawer.type.Overlay`. |
+| type | String | ‘default' | Type of the drawer. `default` / `overlay` You can also use static value `Drawer.types.Default` / `Drawer.types.Overlay`. |
 | drawerPosition | String | ‘left' | Determine where does the drawer come out. `left` / `right` / `both` You can also use static value `Drawer.positions.Left` / `Drawer.positions.Right` / `Drawer.positions.Both`. |
 | drawerWidth | Number | 200 | The width of drawer, it’s disabled when use `replace` type. |
 | drawerContent | React Component | null | The content of the drawer menu, default is left content. |
