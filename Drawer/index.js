@@ -36,7 +36,9 @@ export default class Drawer extends Component {
   static types = types
   static defaultProps = {
     disabled: false,
-    drawerWidth: 200,
+    leftDisabled: false,
+    rightDisabled: false,
+    drawerWidth: 300,
     duration: 160,
     drawerPosition: positions.Left,
     type: types.Default,
@@ -48,8 +50,10 @@ export default class Drawer extends Component {
   }
   static propTypes = {
     disabled: PropTypes.bool,
+    leftDisabled: PropTypes.bool,
+    rightDisabled: PropTypes.bool,
     drawerContent: PropTypes.object,
-    width: PropTypes.number,
+    drawerWidth: PropTypes.number,
     duration: PropTypes.number,
     drawerPosition: PropTypes.oneOf(Object.values(positions)),
     type: PropTypes.oneOf(Object.values(types)),
@@ -75,7 +79,7 @@ export default class Drawer extends Component {
     } = this.props;
     this.isLeft = drawerPosition === positions.Both || drawerPosition === positions.Left;
     this.isRight = drawerPosition === positions.Both || drawerPosition === positions.Right;
-    this.MAX_DX = drawerWidth > 0.8 * width ? 0.8 * width : drawerWidth;
+    this.MAX_DX = drawerWidth > width ? width : drawerWidth;
     this.MAX_ALPHA = maskAlpha > MAX.maskAlpha ? MAX.maskAlpha : maskAlpha;
     this.styles = {
       leftDrawer: {
@@ -157,8 +161,14 @@ export default class Drawer extends Component {
   }
   _onStartShouldSetPanResponder (evt, gestureState) {
     // set responder for tapping when the drawer is open
+    const {
+      disabled,
+      leftDisabled,
+      rightDisabled
+    } = this.props;
     let isOpen = this.isLeftOpen || this.isRightOpen;
-    if (isOpen && !this.inAnimation && !this.props.disabled) return true;
+    let singleDisabled = (this.isLeftOpen && leftDisabled) || (this.isRightOpen && rightDisabled);
+    if (isOpen && !this.inAnimation && !disabled && !singleDisabled) return true;
     return false;
   }
   _onMoveShouldSetPanResponder (evt, gestureState) {
@@ -207,18 +217,28 @@ export default class Drawer extends Component {
   }
   _touchPositionCheck(gestureState) {
     const {moveX, dx, dy} = gestureState;
+    const {
+      leftDisabled,
+      rightDisabled
+    } = this.props;
     // in move set panresponder state, moveX is the original point's coordinates
     let x0 = moveX;
     let isOpen = this.isLeftOpen || this.isRightOpen;
-    if (isOpen && dx !== 0) return true;
     if (Math.abs(dx) < Math.abs(dy)) return false;
+    // swipe when drawer is fully opened
+    if (
+      this.isLeftOpen && !leftDisabled && dx < 0 ||
+      (this.isRightOpen && !rightDisabled && dx > 0)
+    ) {
+      return true;
+    }
     // swipe right to open left drawer
-    if (this.isLeft && x0 <= width * 0.2 && !isOpen && dx > 0) {
+    if (!leftDisabled && this.isLeft && x0 <= width * 0.2 && !isOpen && dx > 0) {
       this.isLeftActive = true;
       return true;
     }
     // swipe left to open right drawer
-    if (this.isRight && x0 >= width * 0.8 && !isOpen && dx < 0) {
+    if (!rightDisabled && this.isRight && x0 >= this.MAX_DX && !isOpen && dx < 0) {
       this.isRightActive = true;
       return true;
     }
@@ -244,11 +264,13 @@ export default class Drawer extends Component {
     }).start();
   }
   closeLeftDrawer () {
-    if (!this.isLeft || !this.isLeftOpen || this.props.disabled) return;
+    const disabled = this.props.disabled || this.props.leftDisabled;
+    if (!this.isLeft || !this.isLeftOpen || disabled) return;
     this.closeDrawer();
   }
   closeRightDrawer () {
-    if (!this.isRight || !this.isRightOpen || this.props.disabled) return;
+    const disabled = this.props.disabled || this.props.rightDisabled;
+    if (!this.isRight || !this.isRightOpen || disabled) return;
     this.closeDrawer();
   }
   openDrawer() {
@@ -256,13 +278,15 @@ export default class Drawer extends Component {
     this.inAnimation = true;
     const {
       duration,
+      leftDisabled,
+      rightDisabled,
       easingFunc = t => t
     } = this.props;
     // enable active status when the method is called by instance reference
     if (!this.isLeftActive && !this.isRightActive) {
-      if (this.isLeft) {
+      if (this.isLeft && !leftDisabled) {
         this.isLeftActive = true;
-      } else if (this.isRight) {
+      } else if (this.isRight && !rightDisabled) {
         this.isRightActive = true;
       }
     }
@@ -285,13 +309,15 @@ export default class Drawer extends Component {
   }
   openLeftDrawer () {
     let isOpen = this.isLeftOpen || this.isRightOpen;
-    if (!this.isLeft || isOpen || this.props.disabled) return;
+    const disabled = this.props.disabled || this.props.leftDisabled;
+    if (!this.isLeft || isOpen || disabled) return;
     this.isLeftActive = true;
     this.openDrawer();
   }
   openRightDrawer () {
     let isOpen = this.isLeftOpen || this.isRightOpen;
-    if (!this.isRight || isOpen || this.props.disabled) return;
+    const disabled = this.props.disabled || this.props.rightDisabled;
+    if (!this.isRight || isOpen || disabled) return;
     this.isRightActive = true;
     this.openDrawer();
   }

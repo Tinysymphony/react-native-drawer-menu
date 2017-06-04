@@ -52,6 +52,7 @@ let treeB = shallow(
     moveCapture={false}
     startCapture={true}
     disabled={true}
+    leftDisabled={true}
   >
     <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
       <Text>Hello World</Text>

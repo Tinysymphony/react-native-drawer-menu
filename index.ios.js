@@ -58,6 +58,7 @@ class drawer extends Component {
           leftDrawer: styles.leftDrawer,
           rightDrawer: styles.rightDrawer
         }}
+        drawerWidth={300}
         disabled={this.state.disabled}
         drawerPosition={Drawer.positions.Both}
         easingFunc={Easing.ease}
