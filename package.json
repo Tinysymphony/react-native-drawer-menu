@@ -24,7 +24,9 @@
 		"url": "https://github.com/Tinysymphony/react-native-drawer-menu/issues"
 	},
 	"homepage": "https://github.com/Tinysymphony/react-native-drawer-menu#readme",
-	"dependencies": {},
+	"dependencies": {
+		"prop-types": "^15.6.0"
+	},
 	"devDependencies": {
 		"babel-jest": "18.0.0",
 		"babel-preset-react-native": "1.9.1",
