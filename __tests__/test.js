@@ -7,13 +7,18 @@ import {
   Dimensions
 } from 'react-native';
 import React from 'react';
-import {shallow} from 'enzyme';
+import Enzyme from 'enzyme';
 import renderer from 'react-test-renderer';
+import Adapter from 'enzyme-adapter-react-16';
+
+Enzyme.configure({ adapter: new Adapter() });
+
+const shallow = Enzyme.shallow;
 
 import Drawer from '../Drawer';
 import Animation from '../Drawer/Animation';
 
-let {width, height, scale} = Dimensions.get('window');
+let { width, height, scale } = Dimensions.get('window');
 
 let leftDrawerContent = (
   <View style={{flex: 1}}>
