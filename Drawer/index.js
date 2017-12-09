@@ -2,7 +2,8 @@
  * Created by TinySymphony on 2017-02-14.
  */
 
-import React, {PropTypes, Component} from 'react';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import {
   StyleSheet,
   View,
@@ -71,6 +72,12 @@ export default class Drawer extends Component {
     easingFunc: PropTypes.func,
     responderNegotiate: PropTypes.func
   }
+  constructor(props) {
+    super(props);
+    this.state = {
+      showMask: false
+    };
+  }
   componentWillMount() {
     const {
       drawerWidth,
@@ -129,9 +136,6 @@ export default class Drawer extends Component {
       onPanResponderTerminate: this._handlePanResponderEnd.bind(this),
       onShouldBlockNativeResponder: this._shouldBlockNativeResponder.bind(this)
     });
-    this.state = {
-      showMask: false
-    };
     this._updateNativeStyles = this._updateNativeStyles.bind(this);
     this._handleMainBoardPress = this._handleMainBoardPress.bind(this);
     this._drawerDidClose = this._drawerDidClose.bind(this);
