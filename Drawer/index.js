@@ -362,8 +362,9 @@ export default class Drawer extends Component {
     this._rightDrawer && this._rightDrawer.setNativeProps(this.styles.rightDrawer);
     this._mask && this._mask.setNativeProps(this.styles.mask);
     if (this.props.type === types.Default || dx === 0) {
-      this.styles.main.style.left = dx;
-      this.styles.main.style.right = -dx.toFixed(3);
+      const val = Math.round( dx * 1e0 ) / 1e0;
+      this.styles.main.style.left = val;
+      this.styles.main.style.right = -val;
       this._main && this._main.setNativeProps(this.styles.main);
     }
   }
