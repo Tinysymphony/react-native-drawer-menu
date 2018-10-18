@@ -206,7 +206,7 @@ export default class Drawer extends Component {
   _handlePanResponderEnd (evt, gestureState) {
     let currentWidth = Math.abs(this._getCurrentDrawerWidth());
     let isOpen = this.isLeftOpen || this.isRightOpen;
-    if (isOpen && gestureState.dx === 0) return this._handleMainBoardPress();
+    if (isOpen && gestureState.dx === 0 && (gestureState.x0 < this.MAX_DX * 0.2)) return this._handleMainBoardPress();
     if (currentWidth === this.MAX_DX) return this._drawerDidOpen();
     if (currentWidth === 0) return this._drawerDidClose();
     if (currentWidth > this.MAX_DX / 2) {
@@ -231,18 +231,18 @@ export default class Drawer extends Component {
     if (Math.abs(dx) < Math.abs(dy)) return false;
     // swipe when drawer is fully opened
     if (
-      this.isLeftOpen && !leftDisabled && dx < 0 ||
-      (this.isRightOpen && !rightDisabled && dx > 0)
+      this.isLeftOpen && !leftDisabled && dx < -10 ||
+      (this.isRightOpen && !rightDisabled && dx > 10)
     ) {
       return true;
     }
     // swipe right to open left drawer
-    if (!leftDisabled && this.isLeft && x0 <= width * 0.2 && !isOpen && dx > 0) {
+    if (!leftDisabled && this.isLeft && x0 <= width * 0.2 && !isOpen && dx > 10) {
       this.isLeftActive = true;
       return true;
     }
     // swipe left to open right drawer
-    if (!rightDisabled && this.isRight && x0 >= this.MAX_DX && !isOpen && dx < 0) {
+    if (!rightDisabled && this.isRight && x0 >= width * 0.2 && !isOpen && dx < -10) {
       this.isRightActive = true;
       return true;
     }
@@ -362,8 +362,9 @@ export default class Drawer extends Component {
     this._rightDrawer && this._rightDrawer.setNativeProps(this.styles.rightDrawer);
     this._mask && this._mask.setNativeProps(this.styles.mask);
     if (this.props.type === types.Default || dx === 0) {
-      this.styles.main.style.left = dx;
-      this.styles.main.style.right = -dx;
+      const val = Math.round( dx * 1e0 ) / 1e0;
+      this.styles.main.style.left = val;
+      this.styles.main.style.right = -val;
       this._main && this._main.setNativeProps(this.styles.main);
     }
   }
@@ -394,11 +395,10 @@ export default class Drawer extends Component {
     let leftDrawerContent = this.props.leftDrawerContent ? this._bindDrawerRef(this.props.leftDrawerContent) : null;
     let rightDrawerContent = this.props.rightDrawerContent ? this._bindDrawerRef(this.props.rightDrawerContent) : null;
     return (
-      <View style={styles.container}>
+      <View style={styles.container} {...this._pan.panHandlers}>
         <View
           ref={this._mainRefBind}
           style={[customStyles.main, styles.absolute]}
-          {...this._pan.panHandlers}
         >
           {this.props.children}
           {this.state.showMask && <View
