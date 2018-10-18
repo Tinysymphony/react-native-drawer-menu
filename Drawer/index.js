@@ -231,7 +231,7 @@ export default class Drawer extends Component {
     if (Math.abs(dx) < Math.abs(dy)) return false;
     // swipe when drawer is fully opened
     if (
-      this.isLeftOpen && !leftDisabled && dx < 10 ||
+      this.isLeftOpen && !leftDisabled && dx < -10 ||
       (this.isRightOpen && !rightDisabled && dx > 10)
     ) {
       return true;
@@ -242,7 +242,7 @@ export default class Drawer extends Component {
       return true;
     }
     // swipe left to open right drawer
-    if (!rightDisabled && this.isRight && x0 >= width * 0.2 && !isOpen && dx < 10) {
+    if (!rightDisabled && this.isRight && x0 >= width * 0.2 && !isOpen && dx < -10) {
       this.isRightActive = true;
       return true;
     }
